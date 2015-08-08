@@ -1,0 +1,173 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+	<script type="text/javascript" src="http://res.providencejournal.com/global-assets/scripts/jquery-1.8.3.js"></script>
+
+	<script type="text/javascript" src="http://res.providencejournal.com/global-assets/scripts/underscore-min.js"></script>
+
+
+	<meta charset="UTF-8">
+	<title></title>
+	<style type="text/css">
+</style> 
+
+</head>
+<body>
+
+<script type="text/javascript">
+
+	var Score = function(){
+		this.ones = {value:0,filled:false,bonus:0};
+		this.twos  = {value:0,filled:false,bonus:0};
+		this.threes = {value:0,filled:false,bonus:0};
+		this.fours = {value:0,filled:false,bonus:0};
+		this.fives = {value:0,filled:false,bonus:0};
+		this.sixes = {value:0,filled:false,bonus:0,bonus:0};
+		this.threekind = {value:0,filled:false,bonus:0};
+		this.fourkind = {value:0,filled:false,bonus:0};
+		this.smallstraight = {value:0,filled:false,bonus:0};
+		this.largestraight = {value:0,filled:false,bonus:0};
+		this.yahtzee = {value:0,filled:false,bonus:0};
+		this.chance = {value:0,filled:false,bonus:0};
+		this.getScore = function(){
+			return this.ones.value+this.twos.value+this.threes.value+this.fours.value+this.fives.value+this.sixes.value+this.threekind.value+this.fourkind.value+this.smallstraight.value+this.largestraight.value+this.yahtzee.value+this.chance.value;
+		};
+
+	};
+
+
+	var codes = {"yz":"Yahtzee",
+					"fh":"Full House",
+					"ss" :"Small straight",
+					"ls" :"Large straight",
+					"4k" : "Four of a kind",
+					"3k" : "Three of a kind",
+					"2k" : "Two of a kind",
+					"2p" : "2 Pair",
+					"si" : "Singles"
+				};
+
+
+	var Dice = function(){
+		
+		this.value;
+		this.roll = function(){
+			this.value = Math.floor(Math.random() * 6) + 1 ;
+			return this.value;
+		};
+	};
+
+	
+	var DiceGroup = function(numberOfDice){
+		this.dice = [];
+		this.values = [];
+		for (var x=0;x<numberOfDice;x++) {
+			this.dice[x] = new Dice();
+		}
+		this.roll = function(holdIndices){
+			for (var j=0;j<this.dice.length;j++) {
+				if (!(_.contains(holdIndices,j)))	{
+					this.values[j] = this.dice[j].roll();
+				}
+
+			}
+		return this.values;
+		};
+	};
+
+
+
+
+
+
+
+	
+	function analyze(arr) {
+		arr.sort();
+		var numbers = {};
+		for (var x=0;x<arr.length;x++) {
+			var i = arr[x].toString();
+			if (numbers[i]== undefined) {
+				numbers[i] = 1;
+			}
+			else {
+				numbers[i]++;
+			}
+		}
+		var buckets = _.keys(numbers).length;
+		var max = _.max(_.values(numbers));
+		var result;
+		switch (buckets) {
+			case 1:
+				result = "yz";
+				break;
+			case 2:
+				if (max==4) {
+					result = "4k";
+				}
+				else {
+					result = "fh";
+				}
+				break;
+			case 3:
+				if (max==3) {
+					result = "3k";
+				}
+				else {
+					result = "2p";
+				}
+				break;
+			case 4:
+				if ((numbers["1"] == undefined && numbers["2"] == undefined) || (numbers["5"] == undefined && numbers["6"] == undefined))  {
+					result = "ss";
+				}
+				else {
+					result = "2k";
+				}
+				break;
+			case 5:
+				if (numbers["1"] == undefined || numbers["6"] == undefined) {
+					result = "ls";
+				}
+				else if (numbers["3"] && numbers["4"])  {
+					result = "ss";
+				}
+
+				else {
+					result = "si";
+				}
+				break;
+
+		}
+
+	//	console.log(arr);
+	//	console.log(codes[result]);
+		return result;
+	}
+
+
+var result = {};
+var myTurn = new DiceGroup(5);
+
+for (var x=0;x<777600;x++) {
+
+	var y = analyze(myTurn.roll());
+	if (result[y]== undefined) {
+			result[y] = 1;
+	}
+		else {
+			result[y]++;
+		}
+}
+
+console.log(result);
+
+</script>
+
+
+
+</body>
+</html>
